@@ -1,0 +1,44 @@
+version: "3.3"
+services:
+  elixir-api:
+    container_name: elixir-api
+    build: ./backend
+    ports:
+      - 4000:4000
+    volumes:
+      - ./backend:/app
+      - ./backend/deps:/elixir_api/deps
+      - ./backend/_build:/elixir_api/_build
+    depends_on:
+      - api-db
+    networks:
+      - backend
+
+  api-db:
+    container_name: api-db
+    image: postgres:latest
+    environment:
+      - POSTGRES_USER=elixir
+      - POSTGRES_PASSWORD=elixir
+      - POSTGRES_DB=api_elixir
+    ports:
+      - 5432:5432
+    networks:
+      - backend
+
+  front:
+    container_name: front
+    build:
+      context: ./frontend
+    volumes:
+      - './frontend'
+      - './frontend/node_modules'
+    ports:
+      - '8080:8080'
+    depends_on:
+      - api-db
+    networks:
+      - backend
+
+networks:
+  backend:
